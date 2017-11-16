@@ -20,24 +20,31 @@ const Page = db.define('page', {
   date: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW
-  },
-  route: {
-    type: Sequelize.VIRTUAL,
-    get () {
-      return '/wiki/' + this.getDataValue('urlTitle');
-    }
   }
+  // Note: This is the same as the getterMethod route below...
+  // ,
+  // route: {
+  //   type: Sequelize.VIRTUAL,
+  //   get () {
+  //     return '/wiki/' + this.getDataValue('urlTitle');
+  //   }
+  // }
 },
 // 'OPTIONS OBJECT' - HOOKS, VIRTUALS
+// Note: A hook runs with an instance being saved given as an argument.
 {
   hooks: {
     beforeValidate: function (page) {
       if (page.title){
         page.urlTitle = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
+      } else {
+        return Math.random().toString(36).substring(2, 7);
       }
-      // } else {
-      //   return Math.random().toString(36).substring(2, 7);
-      console.log(page)
+    }
+  },
+  getterMethods: {
+    route: function () {
+      return '/wiki/' + this.urlTitle;
     }
   }
 });
