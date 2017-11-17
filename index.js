@@ -41,7 +41,9 @@ app.get('/', function(req, res){
 });
 
 // DATABASE SYNC:
-models.db.sync()
+models.db.sync(
+  // {force: true}
+)
 .then(function () {
   app.listen(3000, function(req, res){
     console.log('Server is listening on port 3000!');

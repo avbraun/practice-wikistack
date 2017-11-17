@@ -20,6 +20,9 @@ const Page = db.define('page', {
   date: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW
+  },
+  tags: {
+    type: Sequelize.ARRAY(Sequelize.TEXT)
   }
   // Note: This is the same as the getterMethod route below...
   // ,

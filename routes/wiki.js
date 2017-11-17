@@ -54,14 +54,18 @@ router.get('/:urlTitle', function (req, res, next){
       urlTitle: req.params.urlTitle
     }
   })
-    .then(function (foundPage){
-      return User.findOne({
-        where: {
-          userId: foundPage.authorId
-        }
-      })
+  .then(function (foundPage){
+      if (foundPage === null){
+        return next(new Error('That page does not exist!'));
+      }
+      foundPage.getAuthor()
+        .then(function (author){
+          foundPage.author = author;
+          res.render('wikipage', {
+            page: foundPage
+          });
+        });
     })
-      .then(function(foundUser))
     .catch(function (err){
       next(err);
     });
