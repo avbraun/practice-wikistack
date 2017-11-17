@@ -63,6 +63,9 @@ var User = db.define('user', {
   }
 });
 
+Page.belongsTo(User, {as: 'author'});
+// Goes into Pages table as a column header: puppyId
+
 module.exports = {
   Page: Page,
   User: User,

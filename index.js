@@ -7,7 +7,7 @@ let app = express();
 // ROUTERS:
 let models = require('./models');
 let wikiRouter = require('./routes/wiki');
-let userRouter = require('./routes/user');
+let userRouter = require('./routes/users');
 
 let Page = models.Page;
 let User = models.User;
@@ -27,7 +27,7 @@ app.use(express.static(__dirname + '/public'));
 
 // ROUTERS:
 app.use('/wiki', wikiRouter);
-app.use('/user', userRouter);
+app.use('/users', userRouter);
 
 // ERROR-HANDLING MIDDLEWARE:
 app.use(function (err, req, res, next){
@@ -41,7 +41,7 @@ app.get('/', function(req, res){
 });
 
 // DATABASE SYNC:
-models.db.sync({})
+models.db.sync()
 .then(function () {
   app.listen(3000, function(req, res){
     console.log('Server is listening on port 3000!');

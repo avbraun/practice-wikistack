@@ -8,32 +8,37 @@ module.exports = router;
 
 // retrieves all wiki pages:
 router.get('/', function (req, res, next) {
-
-  Page.findAll()
-  .then(function (foundPages) {
-    res.render('index', {
-      pages: foundPages
-    });
-  })
-  .catch(function (err){
-    next(err);
-  })
-});
-
-// submits a new page to the database:
-router.post('/', function (req, res, next) {
-  var newPage = Page.build(req.body
-    // { title: req.body.title,
-    // content: req.body.content,
-    // status: req.body.status }
-  );
-  newPage.save()
-    .then(function (savedPage){
-      res.redirect('/wiki' + savedPage.route);
+  Page.findAll({})
+    .then(function (foundPages) {
+      res.render('index', {
+        pages: foundPages
+      });
     })
     .catch(function (err){
       next(err);
     });
+});
+
+// submits a new page to the database:
+router.post('/', function (req, res, next) {
+  // cannot just include email here!
+  User.findOrCreate({
+    where: {
+      email: req.body.userEmail,
+      name: req.body.userName
+    }
+  })
+  .spread(function(user, createdBool){ // 'spread' breaks apart the returned array into two arguments
+    return Page.create(req.body)
+      .then(function(newPage){
+        return newPage.setAuthor(user); // REMEMBER: author could be anything!
+      });
+    })
+    .then(function(savedPage){
+      res.redirect(savedPage.route);
+      // savedPage.route same as '/wiki/' + savedPage.urlTitle
+    })
+    .catch(next);
 });
 
 // retrieves the 'add a page' form:
@@ -43,16 +48,20 @@ router.get('/add', function (req, res, next) {
 
 // retrieves one wiki page:
 router.get('/:urlTitle', function (req, res, next){
+
   Page.findOne({
     where: {
       urlTitle: req.params.urlTitle
     }
   })
     .then(function (foundPage){
-      res.render('wikipage', {
-        page: foundPage
-      });
+      return User.findOne({
+        where: {
+          userId: foundPage.authorId
+        }
+      })
     })
+      .then(function(foundUser))
     .catch(function (err){
       next(err);
     });
